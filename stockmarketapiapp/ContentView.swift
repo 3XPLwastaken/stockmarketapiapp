@@ -85,6 +85,53 @@ struct ContentView: View {
             )
             
         }.frame(alignment: .top)
+            .overlay {
+                RoundedRectangle(cornerRadius: 16)
+                    .frame(maxWidth: .infinity, maxHeight: 999)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.white.mix(with: .gray, by: 0.4), lineWidth: 4)
+                            .overlay(content: {
+                                HStack {
+                                    Image(systemName: "house")
+                                        .resizable()
+                                        .foregroundStyle(.black.mix(with: .white, by: 0.5))
+                                        .fontWeight(.semibold)
+                                        .frame(width: 45, height: 40, alignment: .center)
+                                        //.padding(.all)
+                                        .padding(.leading, 40)
+                                    
+                                    Image(systemName: "magnifyingglass")
+                                        .resizable()
+                                        .foregroundStyle(.black.mix(with: .white, by: 0.5))
+                                        .fontWeight(.semibold)
+                                        .frame(width: 35, height: 35, alignment: .center)
+                                        .padding(.leading, 3)
+                                    
+                                    Image(systemName: "list.bullet")
+                                        .resizable()
+                                        .foregroundStyle(.black.mix(with: .white, by: 0.5))
+                                        .fontWeight(.semibold)
+                                        .frame(width: 35, height: 30, alignment: .center)
+                                        .padding(.leading, 3)
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: "gear")
+                                        .resizable()
+                                        .foregroundStyle(.black.mix(with: .white, by: 0.5))
+                                        .fontWeight(.semibold)
+                                        .frame(width: 40, height: 40, alignment: .center)
+                                        .padding(.trailing, 40)
+                                        .padding(.leading, 3)
+                                    
+                                }
+                            })
+                    )
+                    .foregroundStyle(Color.white.mix(with: .gray, by: 0.25))
+                    .ignoresSafeArea()
+                    .padding(.top, UIScreen.main.bounds.height/1.2)
+            }
         //.background(.blue)
     }
 }
