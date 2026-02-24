@@ -1,3 +1,5 @@
+// https://github.com/wvteijlingen/swift-websocket
+
 import Combine
 import Foundation
 

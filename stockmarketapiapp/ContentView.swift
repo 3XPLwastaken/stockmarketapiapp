@@ -14,7 +14,6 @@ struct ContentView: View {
     
     var body: some View {
         ZStack {
-           
             VStack {
                 RoundedRectangle(cornerRadius: 32)
                     .frame(maxWidth: .infinity, maxHeight: 200)
@@ -130,6 +129,24 @@ struct ContentView: View {
                     .foregroundStyle(Color.white.mix(with: .gray, by: 0.25))
                     .ignoresSafeArea()
                     .padding(.top, UIScreen.main.bounds.height/1.2)
+            }
+        
+            .onAppear {
+                Task {
+                    let sock = FinnhubAPI.listenForMarketChanges(marketName: "AAPL") { json in
+                        print("GOT MARKET CHANGE!!!")
+                    }
+                    
+                    print("Yields...")
+
+                    do {
+                        try await sock.WEBSOCKET.send("""
+                        {"type":"subscribe","symbol":"AAPL"}
+                        """)
+                    } catch {
+                        print("Send failed:", error)
+                    }
+                }
             }
         //.background(.blue)
     }
