@@ -64,8 +64,6 @@ struct ContentView: View {
                     
                 Spacer()
                 Spacer()
-                Spacer()
-                Spacer()
                 
                 
                 RoundedRectangle(cornerRadius: 32)
@@ -78,6 +76,7 @@ struct ContentView: View {
                             })
                     )
                     .foregroundStyle(Color.white.mix(with: .gray, by: 0.25))
+                    .padding(.bottom, 50)
                 
                 Spacer()
             }.padding(
