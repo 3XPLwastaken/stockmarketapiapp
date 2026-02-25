@@ -26,6 +26,28 @@ struct FinnhubAPI {
             url: "wss://ws.finnhub.io?token=" + API_KEY, onMessage: onMessage)
         
     }
+    
+    static func searchStockName(name : String) async -> ImplicitJSON {
+        let sessionURL = URL(string: "https://finnhub.io/api/v1/search?q=" + name + "&exchange=US&token=" + API_KEY)
+        
+        do {
+            let (data, _) = try await URLSession.shared.data(from: sessionURL!)
+            
+            
+            var json = ImplicitJSON(json: String(data: data, encoding: .utf8)!)
+            print(json)
+            
+            return json
+        } catch {
+            return ImplicitJSON(json: """
+failed : true
+""")
+        }
+
+        
+        //ImplicitJSON(json: <#T##String#>)
+        
+    }
 }
 
 
@@ -55,7 +77,27 @@ final class FinnhubSocket: ObservableObject {
         }
 
         self.onMessage = onMessage
+        
+        Task {
+            try? await WEBSOCKET.connect()
+        }
         startListening()
+    }
+    
+    // could reconnect if dc'd
+    @MainActor
+    public func yieldUntilConnected() async {
+        var time = 0.0
+        
+        while (SOCKET_EVENT != .connected) {
+            try? await Task.yield()
+            time += 0.1
+            
+            // took too long
+            if (time > 10 && SOCKET_EVENT != .connected && SOCKET_EVENT != .connecting) {
+                return
+            }
+        }
     }
 
     private func startListening() {
@@ -83,7 +125,7 @@ final class FinnhubSocket: ObservableObject {
                 // As String or Data
                 switch message {
                 case .string(let string):
-                    var json = ImplicitJSON(json: string)
+                    let json = ImplicitJSON(json: string)
                     
                     onMessage(json)
                 case .data:
