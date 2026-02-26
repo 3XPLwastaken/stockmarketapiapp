@@ -13,6 +13,7 @@ struct ContentView: View {
     var screenSize = UIScreen.main.bounds
     
     var body: some View {
+        NavigationView{
         ZStack {
             VStack {
                 RoundedRectangle(cornerRadius: 32)
@@ -99,13 +100,20 @@ struct ContentView: View {
                                         //.padding(.all)
                                         .padding(.leading, 40)
                                     
-                                    Image(systemName: "magnifyingglass")
-                                        .resizable()
-                                        .foregroundStyle(.black.mix(with: .white, by: 0.5))
-                                        .fontWeight(.semibold)
-                                        .frame(width: 35, height: 35, alignment: .center)
-                                        .padding(.leading, 3)
-                                    
+                                    NavigationLink {
+                                        SearchView()
+                                    } label: {
+                                        Image(systemName: "magnifyingglass")
+                                            .resizable()
+                                            .foregroundStyle(
+                                                .black.mix(
+                                                    with: .white,
+                                                    by: 0.5
+                                                )
+                                            )
+                                            .frame(width: 35, height: 35)
+                                    }
+                                    .padding(.leading, 3)
                                     Image(systemName: "list.bullet")
                                         .resizable()
                                         .foregroundStyle(.black.mix(with: .white, by: 0.5))
@@ -147,18 +155,19 @@ struct ContentView: View {
                     print("Yields...")
                     
                     await sock.yieldUntilConnected()
-
+                    
                     do {
                         var a = try await sock.WEBSOCKET.send("""
                         {"type":"subscribe","symbol":"AAPL"}
                         """)
-
+                        
                         
                         print("subscribed!!!!",  a)
                     } catch {
                         print("Send failed:", error)
                     }
                 }
+            }
             }
         //.background(.blue)
     }
