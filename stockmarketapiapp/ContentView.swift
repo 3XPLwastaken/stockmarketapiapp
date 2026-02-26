@@ -142,7 +142,13 @@ struct ContentView: View {
             .onAppear {
                 Task {
                     if true {
-                        await FinnhubAPI.searchStockName(name: "APPLE")
+                        // good for searching stock names from regular names
+                        // await FinnhubAPI.searchStockName(name: "APPLE")
+                        print("SENT REQUEST")
+                        var json = await AlpacaAPI.requestStockHistory(name: "AAPL", time: "1Hour")
+                        
+                        
+                        print(json)
                         return
                     }
                     
