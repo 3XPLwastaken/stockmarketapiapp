@@ -114,6 +114,7 @@ struct ContentView: View {
                                             .frame(width: 35, height: 35)
                                     }
                                     .padding(.leading, 3)
+                                    
                                     Image(systemName: "list.bullet")
                                         .resizable()
                                         .foregroundStyle(.black.mix(with: .white, by: 0.5))

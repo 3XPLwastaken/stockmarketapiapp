@@ -9,20 +9,43 @@ import SwiftUI
 
 struct SearchView: View {
     
-    @State var searchText: String = ""
-    @State var companyName: [String] = ["Apple Inc","NVIDIA Corp"]
+    @State private var searchText: String = ""
+    @State private var results: [String] = []
+    @State private var isLoading: Bool = false
     
     var body: some View {
         ZStack {
-            List{
-                VStack{
-                    
+            List {
+                
+                if isLoading {
+                    HStack {
+                        Spacer()
+                        ProgressView()
+                        Spacer()
+                    }
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+                }
+                
+                ForEach(results, id: \.self) { company in
+                    Text(company)
+                        .font(.system(size: 16))
+                        .bold()
+                        .monospaced()
+                        .foregroundStyle(.white.mix(with: .black, by: 0.6))
+                        .padding(.vertical, 8)
+                        .listRowSeparator(.hidden)
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(Color.clear)
+            .padding(.bottom, 120)
+
             VStack {
                 Spacer()
                 
-                HStack() {
+                HStack {
+                    
                     TextField("Search...", text: $searchText)
                         .padding()
                         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
@@ -31,15 +54,15 @@ struct SearchView: View {
                             RoundedRectangle(cornerRadius: 20, style: .continuous)
                                 .stroke(Color.white.opacity(0.2), lineWidth: 1)
                         )
-
-
+                        .onSubmit {
+                            Task { await search() }
+                        }
+                    
                     Button {
-                        print("Searching: \(searchText)")
+                        Task { await search() }
                     } label: {
                         Image(systemName: "magnifyingglass")
-                            .foregroundStyle(Color(.black))
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(.black.mix(with: .white, by: 0.5))
                             .frame(width: 55, height: 55)
                             .glassEffect(.regular.interactive())
                             .overlay(
@@ -53,7 +76,29 @@ struct SearchView: View {
             }
         }
     }
-}
+    private func search() async {
+        
+        guard !searchText.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        
+        isLoading = true
+        results.removeAll()
+        
+        let s = await FinnhubAPI.searchStockName(name: searchText)
+        
+        let resultValue = s.index(key: "result")
+        
+        if let resultArray = resultValue.requestValue() as? [NSDictionary] {
+            
+            for item in resultArray {
+                let description = item["description"] as? String ?? "Unknown"
+                let symbol = item["symbol"] as? String ?? ""
+                
+                results.append("\(description) (\(symbol))")
+            }
+        }
+        
+        isLoading = false
+    }}
 
 #Preview {
     SearchView()
