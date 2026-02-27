@@ -82,7 +82,7 @@ struct SearchView: View {
         
         isLoading = true
         results.removeAll()
-        
+        d
         let s = await FinnhubAPI.searchStockName(name: searchText)
         
         let resultValue = s.index(key: "result")
