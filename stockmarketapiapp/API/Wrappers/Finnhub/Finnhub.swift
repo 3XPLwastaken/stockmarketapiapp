@@ -28,7 +28,7 @@ struct FinnhubAPI {
     }
     
     static func searchStockName(name : String) async -> ImplicitJSON {
-        let sessionURL = URL(string: "https://finnhub.io/api/v1/search?q=" + name + "&exchange=US&token=" + API_KEY)
+        let sessionURL = URL(string: "http://finnhub.io/api/v1/search?q=" + name + "&exchange=US&token=" + API_KEY)
         
         do {
             let (data, _) = try await URLSession.shared.data(from: sessionURL!)
