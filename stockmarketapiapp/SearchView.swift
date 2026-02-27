@@ -13,6 +13,8 @@ struct SearchView: View {
     @State private var results: [String] = []
     @State private var isLoading: Bool = false
     
+    @State private var size = UIScreen.main.bounds
+    
     var body: some View {
         ZStack {
             List {
@@ -28,18 +30,34 @@ struct SearchView: View {
                 }
                 
                 ForEach(results, id: \.self) { company in
-                    Text(company)
+                    Text(company.split(separator: "(")[0])
                         .font(.system(size: 16))
                         .bold()
                         .monospaced()
                         .foregroundStyle(.white.mix(with: .black, by: 0.6))
                         .padding(.vertical, 8)
+                        .frame(height: 50)
                         .listRowSeparator(.hidden)
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                                .frame(width: 80, height: 50)
+                                .foregroundStyle(.white.opacity(0.2))
+                                .position(x: size.width - 100, y: 25)
+                                .overlay {
+                                    Graph(name: company.split(separator: "(")[1].replacingOccurrences(of: ")", with: ""))
+                                        .frame(width: 80, height: 50)
+                                        .position(x: size.width - 100, y: 25)
+                                        .zIndex(100)
+                                }
+                            
+                        }
                 }
             }
             .scrollContentBackground(.hidden)
+            .ignoresSafeArea(.all)
             .background(Color.clear)
             .padding(.bottom, 120)
+            .frame(width: size.width, height: size.height)
 
             VStack {
                 Spacer()
@@ -73,6 +91,7 @@ struct SearchView: View {
                 }
                 .padding()
                 .padding(.bottom, 10)
+                .offset(y: -50)
             }
         }
     }
@@ -82,7 +101,7 @@ struct SearchView: View {
         
         isLoading = true
         results.removeAll()
-        d
+        
         let s = await FinnhubAPI.searchStockName(name: searchText)
         
         let resultValue = s.index(key: "result")

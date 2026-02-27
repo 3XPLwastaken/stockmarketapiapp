@@ -36,7 +36,7 @@ struct AlpacaAPI {
             //print(String(data: data, encoding: .utf8)!)
             
             let json = ImplicitJSON(json: String(data: data, encoding: .utf8)!)
-            //print(json.json)
+            print(json.json)
             
             return json.index(key: "bars").index(key: name.uppercased())
         } catch {
