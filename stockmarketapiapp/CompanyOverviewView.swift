@@ -8,21 +8,21 @@
 import SwiftUI
 
 struct CompanyOverviewView: View {
-
+    
     let companyName: String
     let companySymbol: String
-
+    
     @State var price: Double? = nil
     @State var changePercent: Double? = nil
-
+    
     @State var companyDescription: String = ""
-
+    
     @State var isLoading: Bool = true
-
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-
+                
                 // Header
                 VStack(alignment: .leading, spacing: 4) {
                     Text(companyName)
@@ -35,7 +35,7 @@ struct CompanyOverviewView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal)
-
+                
                 if isLoading {
                     HStack {
                         Spacer()
@@ -50,7 +50,7 @@ struct CompanyOverviewView: View {
                             Text(String(format: "$%.2f", price))
                                 .font(.system(size: 36, weight: .bold, design: .rounded))
                         }
-
+                        
                         if let changePercent {
                             let isPositive = changePercent >= 0
                             Label(
@@ -68,7 +68,7 @@ struct CompanyOverviewView: View {
                         }
                     }
                     .padding(.horizontal)
-
+                    
                     if !companyDescription.isEmpty {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("About")
@@ -83,7 +83,7 @@ struct CompanyOverviewView: View {
                         .padding(.horizontal)
                     }
                 }
-
+                
                 Spacer()
             }
             .padding(.top, 16)
@@ -92,36 +92,32 @@ struct CompanyOverviewView: View {
         .navigationBarTitleDisplayMode(.inline)
         .task { await loadData() }
     }
-
+    
     private func loadData() async {
         isLoading = true
-        async let quoteTask = fetchQuote()
-        async let profileTask = fetchProfile()
-        await quoteTask
-        await profileTask
+        //async let quoteTask = fetchQuote()
+        //async let profileTask = fetchProfile()
+        //await quoteTask
+        //await profileTask
         isLoading = false
     }
-
+    
     private func fetchQuote() async {
-        let response = await FinnhubAPI.getStockQuote(symbol: companySymbol)
-        if let current = response.index(key: "c").requestValue() as? Double {
-            price = current
-        }
-        if let dp = response.index(key: "dp").requestValue() as? Double {
-            changePercent = dp
-        }
+        //        let response = await FinnhubAPI.getStockQuote(symbol: companySymbol)
+        //        if let current = response.index(key: "c").requestValue() as? Double {
+        //            price = current
+        //        }
+        //        if let dp = response.index(key: "dp").requestValue() as? Double {
+        //            changePercent = dp
+        //        }
+        //    }
+        //
+        //    private func fetchProfile() async {
+        //        let response = await FinnhubAPI.getCompanyProfile(symbol: companySymbol)
+        //        if let desc = response.index(key: "description").requestValue() as? String {
+        //            companyDescription = desc
+        //        }
+        //    }
     }
-
-    private func fetchProfile() async {
-        let response = await FinnhubAPI.getCompanyProfile(symbol: companySymbol)
-        if let desc = response.index(key: "description").requestValue() as? String {
-            companyDescription = desc
-        }
-    }
-}
-
-#Preview {
-    NavigationStack {
-        CompanyOverviewView(companyName: "Apple Inc.", companySymbol: "AAPL")
-    }
+   
 }

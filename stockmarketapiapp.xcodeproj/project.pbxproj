@@ -8,12 +8,24 @@
 
 /* Begin PBXFileReference section */
 		3D8AC28A2F45FCAC00E5E3A1 /* stockmarketapiapp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = stockmarketapiapp.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		EC16DB952F51D60000800900 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		ECF4ECD22F55D86D00DB13C8 /* Exceptions for "stockmarketapiapp" folder in "stockmarketapiapp" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 3D8AC2892F45FCAC00E5E3A1 /* stockmarketapiapp */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		3D8AC28C2F45FCAC00E5E3A1 /* stockmarketapiapp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				ECF4ECD22F55D86D00DB13C8 /* Exceptions for "stockmarketapiapp" folder in "stockmarketapiapp" target */,
+			);
 			path = stockmarketapiapp;
 			sourceTree = "<group>";
 		};
@@ -33,7 +45,6 @@
 		3D8AC2812F45FCAC00E5E3A1 = {
 			isa = PBXGroup;
 			children = (
-				EC16DB952F51D60000800900 /* Info.plist */,
 				3D8AC28C2F45FCAC00E5E3A1 /* stockmarketapiapp */,
 				3D8AC28B2F45FCAC00E5E3A1 /* Products */,
 			);

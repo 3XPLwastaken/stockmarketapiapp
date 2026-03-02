@@ -51,8 +51,8 @@ struct SearchView: View {
                     .listRowBackground(Color.clear)
                 }
                 
-                ForEach(results, id: \.self) { company in
-                    Text(company.split(separator: "(")[0])
+                ForEach(results, id: \.name) { company in
+                    Text(company.name.split(separator: "(")[0])
                         .font(.system(size: 16))
                         .bold()
                         .monospaced()
@@ -66,7 +66,7 @@ struct SearchView: View {
                                 .foregroundStyle(.white.opacity(0.2))
                                 .position(x: size.width - 100, y: 25)
                                 .overlay {
-                                    Graph(name: company.split(separator: "(")[1].replacingOccurrences(of: ")", with: ""))
+                                    Graph(name: company.name.split(separator: "(")[1].replacingOccurrences(of: ")", with: ""))
                                         .frame(width: 80, height: 50)
                                         .position(x: size.width - 100, y: 25)
                                         .zIndex(100)
@@ -117,8 +117,6 @@ struct SearchView: View {
                 .padding(.bottom, 10)
                 .offset(y: -50)
             }
-        }
-    }
 
     private func search() async {
         guard !searchText.trimmingCharacters(in: .whitespaces).isEmpty else { return }
@@ -140,7 +138,6 @@ struct SearchView: View {
         isLoading = false
     }
 }
-
 #Preview {
     SearchView()
 }
