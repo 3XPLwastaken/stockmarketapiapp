@@ -72,7 +72,9 @@ struct ContentView: View {
                         RoundedRectangle(cornerRadius: 32)
                             .stroke(Color.white.mix(with: .gray, by: 0.4), lineWidth: 4)
                             .overlay(content: {
-                                
+                                Graph(name: "AAPL")
+                                    .frame(width: 230, height: 150)
+                                    .clipShape(RoundedRectangle(cornerRadius: 20))
                             })
                     )
                     .foregroundStyle(Color.white.mix(with: .gray, by: 0.25))

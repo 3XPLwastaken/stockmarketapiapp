@@ -105,7 +105,7 @@ struct Graph: View {
         let highest = candle.maxFun()
         let lowest  = candle.minFun()
         let count   = candle.high.count
-
+        
         if candle.high.count == 0 {
             ProgressView()
         }
@@ -123,8 +123,10 @@ struct Graph: View {
         .task {
             print("gett data")
             
-            let jsonData = await AlpacaAPI.requestStockHistory(name: name, time: "1Hour")
+            let jsonData = await AlpacaAPI.requestStockHistory(name: name, time: "5Min")
             candle = Candle.fromJSON(jsonData)
+            
+            print(jsonData.value)
             
             print("candle count: \(candle.high.count)")
         }
