@@ -1,5 +1,8 @@
 // https://github.com/wvteijlingen/swift-websocket
 
+// not used right now and probably wont be, ill probably wriite out own websocket connection solution because i  dont know if we are allowed
+// to use other github repos for weappers
+
 import Combine
 import Foundation
 

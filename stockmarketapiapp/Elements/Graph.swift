@@ -22,9 +22,9 @@ struct Candle: Identifiable {
         if let array = arr.getValue() as? NSArray {
             for item in array {
                 if let dict = item as? NSDictionary {
-                    candle.close.append(  Double("\(dict["c"] ?? 0)") ?? 0 )
-                    candle.high.append(   Double("\(dict["h"] ?? 0)") ?? 0 )
-                    candle.low.append(    Double("\(dict["l"] ?? 0)") ?? 0 )
+                    candle.close.append(  Double("\(dict["c"] ?? 0)") ?? 0 ) // close
+                    candle.high.append(   Double("\(dict["h"] ?? 0)") ?? 0 ) // high
+                    candle.low.append(    Double("\(dict["l"] ?? 0)") ?? 0 ) // low
                     candle.open.append(   Double("\(dict["o"] ?? 0)") ?? 0 )
                     candle.volume.append( Double("\(dict["v"] ?? 0)") ?? 0 )
                     candle.timestampEpoch.append( "\(dict["t"] ?? "")" )
@@ -45,6 +45,7 @@ struct CandleView: View {
     var lowest: Double
     
     var body: some View {
+        // we need the size of the parent
         GeometryReader { geometry in
             let range = highest - lowest
             let h = geometry.size.height
@@ -98,7 +99,8 @@ struct CandleView: View {
 
 
 struct Graph: View {
-    var name: String = "AAPL"
+    var name: String = "AAPL" // default
+    @State var failed: Bool = false
     @State var candle: Candle = Candle()
 
     var body: some View {
@@ -106,29 +108,42 @@ struct Graph: View {
         let lowest  = candle.minFun()
         let count   = candle.high.count
         
-        if candle.high.count == 0 {
-            ProgressView()
-        }
-        
-        GeometryReader { geometry in
-            let slotWidth = geometry.size.width / CGFloat(count)
+        if failed {
             
-            ForEach(0..<count, id: \.self) { i in
-                CandleView(idx: i, candle: candle, highest: highest, lowest: lowest)
-                    .frame(width: slotWidth, height: geometry.size.height)
-                    .position(x: slotWidth * CGFloat(i) + slotWidth / 2,
-                              y: geometry.size.height / 2)
+            Image(systemName: "exclamationmark.triangle.fill")
+                .resizable()
+                .scaledToFit()
+                .padding(.all, 50)
+            
+        } else {
+            if candle.high.count == 0 {
+                ProgressView()
             }
-        }
-        .task {
-            print("gett data")
             
-            let jsonData = await AlpacaAPI.requestStockHistory(name: name, time: "5Min")
-            candle = Candle.fromJSON(jsonData)
-            
-            print(jsonData.value)
-            
-            print("candle count: \(candle.high.count)")
+            GeometryReader { geometry in
+                let slotWidth = geometry.size.width / CGFloat(count)
+                
+                ForEach(0..<count, id: \.self) { i in
+                    CandleView(idx: i, candle: candle, highest: highest, lowest: lowest)
+                        .frame(width: slotWidth, height: geometry.size.height)
+                        .position(x: slotWidth * CGFloat(i) + slotWidth / 2,
+                                  y: geometry.size.height / 2)
+                }
+            }
+            .task {
+                print("gett data")
+                
+                let jsonData = await AlpacaAPI.requestStockHistory(name: name, time: "5Min")
+                candle = Candle.fromJSON(jsonData)
+                
+                print(jsonData.value)
+                print(jsonData.succeeded)
+                
+                // flip
+                failed = (jsonData.value as? String)?.contains("Could not index") ?? false
+                
+                print("candle count: \(candle.high.count)")
+            }
         }
     }
 }

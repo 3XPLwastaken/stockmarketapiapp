@@ -17,7 +17,13 @@ struct SearchView: View {
     var body: some View {
         NavigationStack {
             ZStack {
+                
+                // MARK: - Results List
+                // MARK: - Results List
+                // MARK: - Results List
+                
                 List {
+                    
                     if isLoading {
                         HStack {
                             Spacer()
@@ -27,96 +33,88 @@ struct SearchView: View {
                         .listRowSeparator(.hidden)
                         .listRowBackground(Color.clear)
                     }
-
-
+                    
                     ForEach(results, id: \.symbol) { company in
-                        NavigationLink(destination: CompanyOverviewView(
-                            companyName: company.name,
-                            companySymbol: company.symbol
-                        )) {
-                            Text("\(company.name) (\(company.symbol))")
-                                .font(.system(size: 16))
-                                .bold()
-                                .monospaced()
-                                .foregroundStyle(.white.mix(with: .black, by: 0.6))
-                                .padding(.vertical, 8)
+                        NavigationLink(
+                            destination: CompanyOverviewView(
+                                companyName: company.name,
+                                companySymbol: company.symbol
+                            )
+                        ) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(company.name)
+                                        .font(.system(size: 16))
+                                        .bold()
+                                        .monospaced()
+                                    
+                                    Text(company.symbol)
+                                        .font(.caption)
+                                        .foregroundStyle(.gray)
+                                }
+                                
+                                Spacer()
+                                
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(.gray.opacity(0.15))
+                                        .frame(width: 80, height: 50)
+                                    
+                                    Graph(name: company.symbol)
+                                        .frame(width: 80, height: 50)
+                                }
+                            }
+                            .padding(.vertical, 0)
                         }
                         .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
                     }
                 }
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)
-                .padding(.bottom, 120)
-                    .listRowSeparator(.hidden)
-                    .listRowBackground(Color.clear)
-                }
                 
-                ForEach(results, id: \.name) { company in
-                    Text(company.name.split(separator: "(")[0])
-                        .font(.system(size: 16))
-                        .bold()
-                        .monospaced()
-                        .foregroundStyle(.white.mix(with: .black, by: 0.6))
-                        .padding(.vertical, 8)
-                        .frame(height: 50)
-                        .listRowSeparator(.hidden)
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 15, style: .continuous)
-                                .frame(width: 80, height: 50)
-                                .foregroundStyle(.white.opacity(0.2))
-                                .position(x: size.width - 100, y: 25)
-                                .overlay {
-                                    Graph(name: company.name.split(separator: "(")[1].replacingOccurrences(of: ")", with: ""))
-                                        .frame(width: 80, height: 50)
-                                        .position(x: size.width - 100, y: 25)
-                                        .zIndex(100)
-                                }
-                            
-                        }
-                }
-            }
-            .scrollContentBackground(.hidden)
-            .ignoresSafeArea(.all)
-            .background(Color.clear)
-            .padding(.bottom, 120)
-            .frame(width: size.width, height: size.height)
-
+                // MARK: Search Bar
+                // MARK: Search Bar
+                // MARK: Search Bar
+                // MARK: Search Bar
+                
                 VStack {
                     Spacer()
-
+                    
                     HStack {
                         TextField("Search...", text: $searchText)
                             .padding()
-                            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                            .clipShape(RoundedRectangle(cornerRadius: 20))
                             .glassEffect(.regular.interactive())
                             .overlay(
-                                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                RoundedRectangle(cornerRadius: 20)
                                     .stroke(Color.white.opacity(0.2), lineWidth: 1)
                             )
                             .onSubmit {
                                 Task { await search() }
                             }
-
+                        
                         Button {
                             Task { await search() }
                         } label: {
                             Image(systemName: "magnifyingglass")
-                                .foregroundStyle(.black.mix(with: .white, by: 0.5))
                                 .frame(width: 55, height: 55)
                                 .glassEffect(.regular.interactive())
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                    RoundedRectangle(cornerRadius: 20)
                                         .stroke(Color.white.opacity(0.2), lineWidth: 1)
                                 )
+                                .foregroundStyle(.black)
                         }
                     }
                     .padding()
-                    .padding(.bottom, 10)
+                    .padding(.bottom, -25)
                 }
-                .padding()
-                .padding(.bottom, 10)
-                .offset(y: -50)
             }
+            .ignoresSafeArea(.keyboard)
+            .background(Color.clear)
+        }
+    }
 
     private func search() async {
         guard !searchText.trimmingCharacters(in: .whitespaces).isEmpty else { return }
