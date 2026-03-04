@@ -103,6 +103,9 @@ struct CompanyOverviewView: View {
     }
     
     private func fetchQuote() async {
+        
+        
+        
         //        let response = await FinnhubAPI.getStockQuote(symbol: companySymbol)
         //        if let current = response.index(key: "c").requestValue() as? Double {
         //            price = current
