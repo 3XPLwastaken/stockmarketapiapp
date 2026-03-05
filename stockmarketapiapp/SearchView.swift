@@ -17,11 +17,7 @@ struct SearchView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                
-                // MARK: - Results List
-                // MARK: - Results List
-                // MARK: - Results List
-                
+
                 List {
                     
                     if isLoading {
@@ -72,11 +68,6 @@ struct SearchView: View {
                 }
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)
-                
-                // MARK: Search Bar
-                // MARK: Search Bar
-                // MARK: Search Bar
-                // MARK: Search Bar
                 
                 VStack {
                     Spacer()
