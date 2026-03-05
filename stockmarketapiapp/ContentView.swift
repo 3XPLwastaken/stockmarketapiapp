@@ -99,7 +99,6 @@ struct ContentView: View {
                                         .foregroundStyle(.black.mix(with: .white, by: 0.5))
                                         .fontWeight(.semibold)
                                         .frame(width: 45, height: 40, alignment: .center)
-                                        //.padding(.all)
                                         .padding(.leading, 40)
                                     
                                     NavigationLink {
@@ -145,12 +144,8 @@ struct ContentView: View {
             .onAppear {
                 Task {
                     if true {
-                        // good for searching stock names from regular names
-                        // await FinnhubAPI.searchStockName(name: "APPLE")
                         print("SENT REQUEST")
                         var json = await AlpacaAPI.requestStockHistory(name: "AAPL", time: "1Hour")
-                        
-                        
                         print(json)
                         return
                     }
@@ -158,27 +153,20 @@ struct ContentView: View {
                     let sock = FinnhubAPI.listenForMarketChanges(marketName: "AAPL") { json in
                         print("GOT MARKET CHANGE!!!!!")
                         print(json.json)
-                        //json.index(key: "")
                     }
                     
                     print("Yields...")
                     
-                    await sock.yieldUntilConnected()
+                    sock.connect()
                     
-                    do {
-                        var a = try await sock.WEBSOCKET.send("""
-                        {"type":"subscribe","symbol":"AAPL"}
-                        """)
-                        
-                        
-                        print("subscribed!!!!",  a)
-                    } catch {
-                        print("Send failed:", error)
-                    }
+                    try? await Task.sleep(nanoseconds: 2_000_000_000)
+                    
+                    sock.subscribe(symbol: "AAPL")
+                    
+                    print("subscribed!!!!")
                 }
             }
             }
-        //.background(.blue)
     }
 }
 

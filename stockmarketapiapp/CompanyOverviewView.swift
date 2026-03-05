@@ -95,32 +95,29 @@ struct CompanyOverviewView: View {
     
     private func loadData() async {
         isLoading = true
-        //async let quoteTask = fetchQuote()
-        //async let profileTask = fetchProfile()
-        //await quoteTask
-        //await profileTask
+        async let quoteTask = fetchQuote()
+        async let profileTask = fetchProfile()
+        await quoteTask
+        await profileTask
         isLoading = false
     }
     
     private func fetchQuote() async {
-        
-        
-        
-        //        let response = await FinnhubAPI.getStockQuote(symbol: companySymbol)
-        //        if let current = response.index(key: "c").requestValue() as? Double {
-        //            price = current
-        //        }
-        //        if let dp = response.index(key: "dp").requestValue() as? Double {
-        //            changePercent = dp
-        //        }
-        //    }
-        //
-        //    private func fetchProfile() async {
-        //        let response = await FinnhubAPI.getCompanyProfile(symbol: companySymbol)
-        //        if let desc = response.index(key: "description").requestValue() as? String {
-        //            companyDescription = desc
-        //        }
-        //    }
+        let response = await FinnhubAPI.getStockQuote(symbol: companySymbol)
+        if let current = response.index(key: "c").requestValue() as? Double {
+            price = current
+        }
+        if let dp = response.index(key: "dp").requestValue() as? Double {
+            changePercent = dp
+        }
+    }
+
+    private func fetchProfile() async {
+        let response = await FinnhubAPI.getCompanyProfile(symbol: companySymbol)
+        if let desc = response.index(key: "description").requestValue() as? String {
+            companyDescription = desc
+        }
+    }
     }
    
-}
+
