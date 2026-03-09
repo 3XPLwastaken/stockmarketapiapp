@@ -15,7 +15,7 @@ struct SearchView: View {
     @State private var size = UIScreen.main.bounds
     
     var body: some View {
-        NavigationStack {
+        //NavigationStack {
             ZStack {
 
                 List {
@@ -104,7 +104,7 @@ struct SearchView: View {
             }
             .ignoresSafeArea(.keyboard)
             .background(Color.clear)
-        }
+        //}
     }
 
     private func search() async {

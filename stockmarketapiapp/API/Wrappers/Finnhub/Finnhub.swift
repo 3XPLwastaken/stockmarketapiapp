@@ -12,6 +12,13 @@ import Foundation
 
 struct FinnhubAPI {
     static let API_KEY = "d6eau71r01qloir5ssrgd6eau71r01qloir5sss0"
+    // allows "non secure" https request so we can test on mac
+    private static let session = URLSession(
+            configuration: .default,
+            delegate: SessionDelegate(),
+            delegateQueue: nil
+        )
+    
     static func getCurrentStockPrice(name : String) -> Double {
         return 0.0
     }
@@ -29,7 +36,7 @@ struct FinnhubAPI {
         let sessionURL = URL(string: "https://finnhub.io/api/v1/search?q=" + name + "&exchange=US&token=" + API_KEY)
         
         do {
-            let (data, _) = try await URLSession.shared.data(from: sessionURL!)
+            let (data, _) = try await session.data(from: sessionURL!)
             let json = ImplicitJSON(json: String(data: data, encoding: .utf8)!)
             print(json)
             return json
@@ -45,7 +52,7 @@ struct FinnhubAPI {
         }
         
         do {
-            let (data, _) = try await URLSession.shared.data(from: url)
+            let (data, _) = try await session.data(from: url)
             let json = ImplicitJSON(json: String(data: data, encoding: .utf8)!)
             print("Quote [\(symbol)]: \(json)")
             return json
@@ -56,15 +63,24 @@ struct FinnhubAPI {
     }
     
     static func getCompanyProfile(symbol: String) async -> ImplicitJSON {
+        print("GET COMPANY PROFILE: " + symbol)
+        
+        
         guard let encodedSymbol = symbol.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
               let url = URL(string: "https://finnhub.io/api/v1/stock/profile2?symbol=\(encodedSymbol)&token=\(API_KEY)") else {
             return ImplicitJSON(json: "{ \"failed\": true }")
         }
         
+        print("PASSED GUARD LET")
+        
         do {
-            let (data, _) = try await URLSession.shared.data(from: url)
+            let (data, _) = try await session.data(from: url)
             let json = ImplicitJSON(json: String(data: data, encoding: .utf8)!)
+            
+            
             print("Profile [\(symbol)]: \(json)")
+            
+            
             return json
         } catch {
             print("getCompanyProfile error: \(error)")

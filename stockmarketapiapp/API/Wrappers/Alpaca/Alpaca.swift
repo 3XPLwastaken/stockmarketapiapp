@@ -17,45 +17,43 @@ struct AlpacaAPI {
     // cached so that we dont send too nany requewsts too fast since we use a free api
     static var cached : [(String) : (JSONValue, Double)] = [:]
     
+    // allows "non secure" https request so we can test on mac
+    private static let session = URLSession(
+            configuration: .default,
+            delegate: SessionDelegate(),
+            delegateQueue: nil
+        )
     // ??
-    static func requestStockHistory(name : String, time: String?) async -> JSONValue { //ImplicitJSON
+    
+    static func requestStockHistory(name: String, time: String?) async -> JSONValue {
         let cacheKey = name + " " + (time ?? "_def")
-        if cached[cacheKey] != nil {
-            // less than a minute old so its okay this data is up to date enough
-            if (cached[cacheKey]?.1 ?? 0) < (Date.now.timeIntervalSince1970 + 60) {
-                return cached[cacheKey]!.0
-            }
-        }
         
-        // https://data.alpaca.markets/v2/stocks/bars?limit=1000&adjustment=raw&feed=sip&sort=as
+        if let (cachedValue, cachedTime) = cached[cacheKey],
+           (Date.now.timeIntervalSince1970 - cachedTime) < 60 {
+            return cachedValue.index(key: name.uppercased())
+        }
         
         let sessionURL = URL(string: "https://data.alpaca.markets/v2/stocks/bars?symbols=" + name + "&timeframe=" + (time ?? "1hr") + "&limit=1000&adjustment=raw&feed=sip&sort=asc")!
         
         var request = URLRequest(url: sessionURL)
         request.httpMethod = "GET"
-        
         request.setValue(API_KEY, forHTTPHeaderField: "APCA-API-KEY-ID")
         request.setValue(API_SECRET_KEY, forHTTPHeaderField: "APCA-API-SECRET-KEY")
-        
-        // not sure if this is required wiht swiftui or is implied but im adding it sinceits in the docs
         request.setValue("application/json", forHTTPHeaderField: "accept")
         
         do {
-            let (data, _) = try await URLSession.shared.data(for: request)
-            
-                
-            //print(String(data: data, encoding: .utf8)!)
-            
+            let (data, _) = try await session.data(for: request)
             let json = ImplicitJSON(json: String(data: data, encoding: .utf8)!)
             print(json.json)
             
-            cached[name + " " + (time ?? "_def")] = (json.index(key: "bars"), Date.now.timeIntervalSince1970) as? (JSONValue, Double)
+            let bars = json.index(key: "bars")
+            cached[cacheKey] = (bars, Date.now.timeIntervalSince1970) // ✅ no cast needed
             
-            return json.index(key: "bars").index(key: name.uppercased())
+            return bars.index(key: name.uppercased())
         } catch {
-            return JSONValue(value: """
-failed : true
-""")
+            print(error.localizedDescription)
+            
+            return JSONValue(value: "failed : true")
         }
     }
     
