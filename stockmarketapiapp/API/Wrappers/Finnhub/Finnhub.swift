@@ -11,7 +11,8 @@ import Foundation
 
 
 struct FinnhubAPI {
-    static let API_KEY = "d6eau71r01qloir5ssrgd6eau71r01qloir5sss0"
+    // old keyd6eau71r01qloir5ssrgd6eau71r01qloir5sss0
+    static let API_KEY = "d6g6lj1r01qt4931o24gd6g6lj1r01qt4931o250"
     // allows "non secure" https request so we can test on mac
     private static let session = URLSession(
             configuration: .default,
