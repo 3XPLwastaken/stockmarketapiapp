@@ -44,14 +44,14 @@ struct AlpacaAPI {
         do {
             let (data, _) = try await session.data(for: request)
             let json = ImplicitJSON(json: String(data: data, encoding: .utf8)!)
-            print(json.json)
+            //print(json.json)
             
             let bars = json.index(key: "bars")
             cached[cacheKey] = (bars, Date.now.timeIntervalSince1970) // ✅ no cast needed
             
             return bars.index(key: name.uppercased())
         } catch {
-            print(error.localizedDescription)
+            //print(error.localizedDescription)
             
             return JSONValue(value: "failed : true")
         }

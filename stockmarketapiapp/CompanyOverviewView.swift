@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UniformTypeIdentifiers // https://stackoverflow.com/questions/61772282/swiftui-how-to-copy-text-to-clipboard
 
 struct CompanyOverviewView: View {
     
@@ -23,6 +24,8 @@ struct CompanyOverviewView: View {
     @State var companyCountry: String = ""
     @State var companyCurrencyEstimate: String = ""
     @State var companyExchange: String = ""
+    
+    @State var newsList: [(title: String, description: String, author: String)] = []
     
     @State var isLoading: Bool = true
     
@@ -159,28 +162,65 @@ struct CompanyOverviewView: View {
                     Spacer()
                     
                     Button("Buy") {
-                                            
+                        // will use Wallet and Stock structs
                     }
                     .bold()
                     .frame(width: screenSize.width/2 - 15)
                     .padding(.vertical, 14)
-                    .glassEffect(.regular.interactive().tint(.blue))
+                    .glassEffect(.regular.interactive().tint(.green))
                     .foregroundStyle(.white)
                     .buttonStyle(.plain)
                     
                     Button("Sell") {
-                        
+                        // will use Wallet and Stock structs
                     }
                     .bold()
                     .frame(width: screenSize.width/2 - 15)
                     .padding(.vertical, 14)
-                    .glassEffect(.regular.interactive().tint(.red))
+                    .glassEffect(.regular.interactive().tint(.green.mix(with: .gray, by: 0.5)))
                     .foregroundStyle(.white)
                     .buttonStyle(.plain)
                     
                     
+                    
                     Spacer()
                 }.padding(.top, 10)
+                
+                
+                ScrollView {
+                    LazyVStack(spacing: 10) {
+                        ForEach(newsList, id: \.title) { article in
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text(article.title)
+                                    .font(.headline)
+                                    .lineLimit(2)
+                                Text(article.author)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                Text(article.description)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(3)
+                            }
+                            .padding(14)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .glassEffect(
+                                .regular.interactive().tint(.gray.opacity(0.2)),
+                                in: RoundedRectangle(cornerRadius: 16)
+                            )
+                            //.tint(.gray)
+                            .onTapGesture {
+                                // copy url to clipboard
+                                // not tested
+                                
+                                //https://stackoverflow.com/questions/61772282/swiftui-how-to-copy-text-to-clipboard
+                                //UIPasteboard.general.string = ""
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 8)
+                }
                 
             }
             .padding(.top, 16)
@@ -195,12 +235,28 @@ struct CompanyOverviewView: View {
         
         async let quoteTask: () = fetchQuote()
         async let profileTask: () = fetchProfile()
+        newsList = [] // reset the data
         
         await quoteTask
         await profileTask
         
         isLoading = false
+        
+        var newsJSON = await NewsAPI.requestSearchResults(search: "\"\(companyName)\" \"\(companySymbol)\"" + "")
+        
+        if let newsArray = newsJSON.requestValue() as? [NSDictionary] {
+            for item in newsArray {
+                let description = item["description"] as? String ?? "Unknown"
+                let title = item["title"] as? String ?? "Unknown"
+                let author = item["author"] as? String ?? "None?"
+                newsList.append((title: title, description: description, author: author))
+                
+               // print(title)
+            }
+        }
+        
     }
+    
     
     // TODO: maybe make this just use the graph data?
     private func fetchQuote() async {

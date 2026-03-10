@@ -131,18 +131,18 @@ struct Graph: View {
                 }
             }
             .task {
-                print("gett data")
+                //print("gett data")
                 
                 let jsonData = await AlpacaAPI.requestStockHistory(name: name, time: "5Min")
                 candle = Candle.fromJSON(jsonData)
                 
-                print(jsonData.value)
-                print(jsonData.succeeded)
+                //print(jsonData.value)
+                //print(jsonData.succeeded)
                 
                 // flip
                 failed = (jsonData.value as? String)?.contains("Could not index") ?? false
                 
-                print("candle count: \(candle.high.count)")
+                //print("candle count: \(candle.high.count)")
             }
         }
     }

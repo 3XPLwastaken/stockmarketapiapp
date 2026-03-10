@@ -28,7 +28,7 @@ struct ContentView: View {
                     .overlay(content: {
                         VStack {
                             HStack {
-                                Text("$2000 dollars")
+                                Text("$\(Wallet.money) dollars")
                                     .foregroundStyle(.green.mix(with: .black, by: 0.1))
                                     .font(.system(size: 20))
                                     .bold()
@@ -143,10 +143,10 @@ struct ContentView: View {
         
             .onAppear {
                 Task {
-                    if true {
-                        print("SENT REQUEST")
+                    /*if true {
+                        //print("SENT REQUEST")
                         var json = await AlpacaAPI.requestStockHistory(name: "AAPL", time: "1Hour")
-                        print(json)
+                        //print(json)
                         return
                     }
                     
@@ -163,7 +163,7 @@ struct ContentView: View {
                     
                     sock.subscribe(symbol: "AAPL")
                     
-                    print("subscribed!!!!")
+                    print("subscribed!!!!")*/
                 }
             }
             }

@@ -38,7 +38,7 @@ struct FinnhubAPI {
         do {
             let (data, _) = try await session.data(from: sessionURL!)
             let json = ImplicitJSON(json: String(data: data, encoding: .utf8)!)
-            print(json)
+            //print(json)
             return json
         } catch {
             return ImplicitJSON(json: "{ \"failed\": true }")
@@ -54,16 +54,16 @@ struct FinnhubAPI {
         do {
             let (data, _) = try await session.data(from: url)
             let json = ImplicitJSON(json: String(data: data, encoding: .utf8)!)
-            print("Quote [\(symbol)]: \(json)")
+            //print("Quote [\(symbol)]: \(json)")
             return json
         } catch {
-            print("getStockQuote error: \(error)")
+           // print("getStockQuote error: \(error)")
             return ImplicitJSON(json: "{ \"failed\": true }")
         }
     }
     
     static func getCompanyProfile(symbol: String) async -> ImplicitJSON {
-        print("GET COMPANY PROFILE: " + symbol)
+        //print("GET COMPANY PROFILE: " + symbol)
         
         
         guard let encodedSymbol = symbol.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
@@ -71,19 +71,19 @@ struct FinnhubAPI {
             return ImplicitJSON(json: "{ \"failed\": true }")
         }
         
-        print("PASSED GUARD LET")
+        //print("PASSED GUARD LET")
         
         do {
             let (data, _) = try await session.data(from: url)
             let json = ImplicitJSON(json: String(data: data, encoding: .utf8)!)
             
             
-            print("Profile [\(symbol)]: \(json)")
+            //print("Profile [\(symbol)]: \(json)")
             
             
             return json
         } catch {
-            print("getCompanyProfile error: \(error)")
+           // print("getCompanyProfile error: \(error)")
             return ImplicitJSON(json: "{ \"failed\": true }")
         }
     }

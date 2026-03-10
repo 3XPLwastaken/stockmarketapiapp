@@ -55,12 +55,12 @@ public class FinnhubSocket {
                     let message = URLSessionWebSocketTask.Message.string(string)
                     task.send(message) { error in
                         if let error = error {
-                            print("FinnhubSocket send error: \(error)")
+                            //print("FinnhubSocket send error: \(error)")
                         }
                     }
                 }
             } catch {
-                print("FinnhubSocket send JSON serialization error: \(error)")
+               // print("FinnhubSocket send JSON serialization error: \(error)")
             }
         }
     }
@@ -72,7 +72,9 @@ public class FinnhubSocket {
                 guard let self = self else { return }
                 switch result {
                 case .failure(let error):
-                    print("FinnhubSocket receive error: \(error)")
+                    if true {
+                    }
+                    //print("FinnhubSocket receive error: \(error)")
                 case .success(let message):
                     var json: ImplicitJSON?
                     
