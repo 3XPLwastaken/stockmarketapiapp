@@ -43,17 +43,17 @@ struct AlpacaAPI {
         
         do {
             let (data, _) = try await session.data(for: request)
-            print(data)
+            //print(data)
             let json = ImplicitJSON(json: String(data: data, encoding: .utf8)!)
-            print(json.json)
+            //print(json.json)
             
             let bars = json.index(key: "bars")
             cached[cacheKey] = (bars, Date.now.timeIntervalSince1970) // ✅ no cast needed
             
             return bars.index(key: name.uppercased())
         } catch {
-            print(error.localizedDescription)
-            print("FAILED TO GET DAATA")
+            //print(error.localizedDescription)
+            //print("FAILED TO GET DAATA")
             
             return JSONValue(value: "failed : true")
         }

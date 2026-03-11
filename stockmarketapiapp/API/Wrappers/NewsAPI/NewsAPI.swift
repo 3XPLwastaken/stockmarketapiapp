@@ -42,7 +42,7 @@ struct NewsAPI {
     static func requestSearchResults(search: String) async -> JSONValue {
         let sessionURL = URL(string: "https://newsapi.org/v2/everything?q=" + search + "&from=\(getQueryDateAsToday)&to=\(getQueryDateAsToday)&sortBy=popularity&apiKey=" + API_KEY)
         
-        print(getQueryDateAsToday())
+        //print(getQueryDateAsToday())
         
         do {
             let (data, _) = try await session.data(from: sessionURL!)

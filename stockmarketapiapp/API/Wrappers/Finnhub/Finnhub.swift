@@ -20,8 +20,13 @@ struct FinnhubAPI {
             delegateQueue: nil
         )
     
-    static func getCurrentStockPrice(name : String) -> Double {
-        return 0.0
+    static func getCurrentStockPrice(name : String) async -> Double {
+        let response = await FinnhubAPI.getStockQuote(symbol: name)
+        if let current = response.index(key: "c").requestValue() as? Double {
+            return current
+        }
+        
+        return -1
     }
     
     static func searchStocks(name: String) -> [String] {

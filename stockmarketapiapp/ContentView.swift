@@ -63,8 +63,8 @@ struct ContentView: View {
                     .foregroundStyle(Color.white.mix(with: .gray, by: 0.25))
                     
                 Spacer()
-                Spacer()
                 
+                Spacer()
                 
                 RoundedRectangle(cornerRadius: 32)
                     .frame(maxWidth: .infinity, maxHeight: 999)
@@ -142,7 +142,10 @@ struct ContentView: View {
             }
         
             .onAppear {
+                Wallet.createInfo()
+
                 Task {
+                    //Wallet.createInfo()
                     /*if true {
                         //print("SENT REQUEST")
                         var json = await AlpacaAPI.requestStockHistory(name: "AAPL", time: "1Hour")
