@@ -142,9 +142,8 @@ struct ContentView: View {
             }
         
             .onAppear {
-                Wallet.createInfo()
-
                 Task {
+                    await Wallet.createInfo()
                     //Wallet.createInfo()
                     /*if true {
                         //print("SENT REQUEST")

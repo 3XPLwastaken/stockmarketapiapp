@@ -13,7 +13,7 @@ struct Stock : Identifiable {
     public var name : String = ""
     public var ownedShares : [(Double, Double)] = [] // (price bought for, amount)
     
-    public func getCurrentPrice() -> Double {
-        return FinnhubAPI.getCurrentStockPrice(name: name)
+    public func getCurrentPrice() async -> Double {
+        return await FinnhubAPI.getCurrentStockPrice(name: name)
     }
 }

@@ -14,25 +14,25 @@ struct Wallet {
     
     public static var ownedStocks : [Stock] = []
     
-    public static func createInfo() {
-        Wallet.buyStock(stockName: "AAPL", amount: 0.87)
-        Wallet.buyStock(stockName: "ABVE", amount: 0.20)
-        Wallet.buyStock(stockName: "RBLX", amount: 8.20)
+    public static func createInfo() async {
+        await Wallet.buyStock(stockName: "AAPL", amount: 0.87)
+        await Wallet.buyStock(stockName: "ABVE", amount: 0.20)
+        await Wallet.buyStock(stockName: "RBLX", amount: 8.20)
         
         print("MONEY: \(money)")
     }
     
-    public static func buyStock(stockName: String, amount: Double) -> Bool {
+    public static func buyStock(stockName: String, amount: Double) async -> Bool {
         var a = Stock(name: stockName, ownedShares: [(amount, Date.now.timeIntervalSince1970)])
         
-        print("money for \(stockName): \(a.getCurrentPrice() * amount)")
+        print("money for \(stockName): \(await a.getCurrentPrice() * amount)")
         
-        money -= a.getCurrentPrice() * amount
+        await money -= a.getCurrentPrice() * amount
         
         return true
     }
     
-    public static func sellStock(id: UUID, shares: Double) -> Bool {
+    public static func sellStock(id: UUID, shares: Double) async -> Bool {
         var owned : Stock? = nil
         var i2 : Int = -1
         
@@ -49,7 +49,7 @@ struct Wallet {
         }
         
         // ok its time to sell
-        money += owned!.getCurrentPrice() * shares
+        await money += owned!.getCurrentPrice() * shares
         ownedStocks.remove(at: i2)
         
         return true
