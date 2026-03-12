@@ -116,13 +116,16 @@ struct ContentView: View {
                                     }
                                     .padding(.leading, 3)
                                     
+                                    NavigationLink{
+                                        CompanyShareView()
+                                    } label:{
                                     Image(systemName: "list.bullet")
                                         .resizable()
                                         .foregroundStyle(.black.mix(with: .white, by: 0.5))
                                         .fontWeight(.semibold)
                                         .frame(width: 35, height: 30, alignment: .center)
                                         .padding(.leading, 3)
-                                    
+                                }
                                     Spacer()
                                     
                                     Image(systemName: "gear")
