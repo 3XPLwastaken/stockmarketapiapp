@@ -144,6 +144,8 @@ struct ContentView: View {
             .onAppear {
                 Task {
                     await Wallet.createInfo()
+                    //AlpacaAPI.getTodayAndYesterdayStringFormatThings()
+                    
                     //Wallet.createInfo()
                     /*if true {
                         //print("SENT REQUEST")

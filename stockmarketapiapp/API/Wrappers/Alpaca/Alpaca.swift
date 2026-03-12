@@ -25,6 +25,13 @@ struct AlpacaAPI {
         )
     // ??
     
+    public static func theNiceMethod() -> (yesterday: String, today: String) {
+        return (
+            yesterday: Date.now.addingTimeInterval(-86400).ISO8601Format().addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!,
+            today: Date.now.ISO8601Format().addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+        )
+    }
+    
     static func requestStockHistory(name: String, time: String?) async -> JSONValue {
         let cacheKey = name + " " + (time ?? "_def")
         
@@ -33,7 +40,13 @@ struct AlpacaAPI {
             return cachedValue.index(key: name.uppercased())
         }
         
-        let sessionURL = URL(string: "https://data.alpaca.markets/v2/stocks/bars?symbols=" + name + "&timeframe=" + (time ?? "1hr") + "&limit=1000&adjustment=raw&feed=sip&sort=asc")!
+        var timeRange = theNiceMethod()
+        
+        /*curl --request GET \
+         --url 'https://data.alpaca.markets/v2/stocks/bars?start=2024-01-03T00%3A00%3A00Z&end=2024-01-04T09%3A30%3A00-04%3A00&limit=1000&adjustment=raw&feed=sip&sort=asc' \
+         --header 'accept: application/json'*/
+        
+        let sessionURL = URL(string: "https://data.alpaca.markets/v2/stocks/bars?symbols=" + name + "&timeframe=" + (time ?? "1hr") + "&limit=1000&adjustment=raw&feed=sip&sort=asc&start=" + timeRange.yesterday + "&end=" + timeRange.today)!
         
         var request = URLRequest(url: sessionURL)
         request.httpMethod = "GET"
