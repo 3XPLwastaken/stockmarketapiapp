@@ -46,7 +46,11 @@ struct AlpacaAPI {
          --url 'https://data.alpaca.markets/v2/stocks/bars?start=2024-01-03T00%3A00%3A00Z&end=2024-01-04T09%3A30%3A00-04%3A00&limit=1000&adjustment=raw&feed=sip&sort=asc' \
          --header 'accept: application/json'*/
         
-        let sessionURL = URL(string: "https://data.alpaca.markets/v2/stocks/bars?symbols=" + name + "&timeframe=" + (time ?? "1hr") + "&limit=1000&adjustment=raw&feed=sip&sort=asc&start=" + timeRange.yesterday + "&end=" + timeRange.today)!
+        let sessionURL = URL(string: "https://data.alpaca.markets/v2/stocks/bars?symbols=" + name + "&timeframe=" + (time ?? "1hr") + "&limit=1000&adjustment=raw&feed=iex&sort=asc&start=" + timeRange.yesterday + "&end=" + timeRange.today)!
+        
+        
+        
+        //print(sessionURL.absoluteString)
         
         var request = URLRequest(url: sessionURL)
         request.httpMethod = "GET"
@@ -58,7 +62,7 @@ struct AlpacaAPI {
             let (data, _) = try await session.data(for: request)
             //print(data)
             let json = ImplicitJSON(json: String(data: data, encoding: .utf8)!)
-            //print(json.json)
+            print(json.json)
             
             let bars = json.index(key: "bars")
             cached[cacheKey] = (bars, Date.now.timeIntervalSince1970) // ✅ no cast needed
