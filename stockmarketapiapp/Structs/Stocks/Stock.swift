@@ -16,4 +16,8 @@ struct Stock : Identifiable {
     public func getCurrentPrice() async -> Double {
         return await FinnhubAPI.getCurrentStockPrice(name: name)
     }
+    
+    public static func getPrice(name: String) async -> Double {
+        return await FinnhubAPI.getCurrentStockPrice(name: name)
+    }
 }

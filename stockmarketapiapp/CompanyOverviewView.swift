@@ -163,6 +163,10 @@ struct CompanyOverviewView: View {
                     
                     Button("Buy") {
                         // will use Wallet and Stock structs
+                        
+                        // TODO: pls make this use own view
+                        
+                        
                     }
                     .bold()
                     .frame(width: screenSize.width/2 - 15)
