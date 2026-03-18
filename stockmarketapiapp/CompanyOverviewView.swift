@@ -29,6 +29,18 @@ struct CompanyOverviewView: View {
     
     @State var isLoading: Bool = true
     
+    @StateObject private var wallet = Wallet.shared
+
+    @State var showBuyAlert = false
+    @State var showBuyResultAlert = false
+    @State var buySharesInput = ""
+    @State var buyResultMessage = ""
+    
+    @State var showSellAlert = false
+    @State var showSellResultAlert = false
+    @State var sellSharesInput = ""
+    @State var sellResultMessage = ""
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
@@ -162,11 +174,8 @@ struct CompanyOverviewView: View {
                     Spacer()
                     
                     Button("Buy") {
-                        // will use Wallet and Stock structs
-                        
-                        // TODO: pls make this use own view
-                        
-                        
+                        buySharesInput = ""
+                        showBuyAlert = true
                     }
                     .bold()
                     .frame(width: screenSize.width/2 - 15)
@@ -176,7 +185,8 @@ struct CompanyOverviewView: View {
                     .buttonStyle(.plain)
                     
                     Button("Sell") {
-                        // will use Wallet and Stock structs
+                        sellSharesInput = ""
+                        showSellAlert = true
                     }
                     .bold()
                     .frame(width: screenSize.width/2 - 15)
@@ -232,6 +242,81 @@ struct CompanyOverviewView: View {
         .navigationTitle(companySymbol)
         .navigationBarTitleDisplayMode(.inline)
         .task { await loadData() }
+        
+        // MARK: BUY SHARES!!!
+        // MARK: BUY SHARES!!!
+        // MARK: BUY SHARES!!!
+        // MARK: BUY SHARES!!!
+        // MARK: BUY SHARES!!!
+        
+        .alert("Buy \(companySymbol)", isPresented: $showBuyAlert) {
+            TextField("Shares (e.g. 1.5)", text: $buySharesInput)
+                .keyboardType(.decimalPad)
+            
+            Button("Buy") {
+                Task {
+                    let shares = Double(buySharesInput) ?? -1
+                    if shares > 0 {
+                        let success = await wallet.buyStock(stockName: companySymbol, amount: shares)
+                        buyResultMessage = success
+                            ? "Bought \(buySharesInput) shares of \(companySymbol)."
+                            : "Not enough funds."
+                    } else {
+                        buyResultMessage = "Enter a valid number of shares."
+                    }
+                    showBuyResultAlert = true
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            if let price {
+                Text(String(format: "Current price: $%.2f", price))
+            }
+        }
+        .alert("Order Status", isPresented: $showBuyResultAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(buyResultMessage)
+        }
+        
+        // MARK: SELL SHARES!!!
+        // MARK: SELL SHARES!!!
+        // MARK: SELL SHARES!!!
+        // MARK: SELL SHARES!!
+        
+        .alert("Sell \(companySymbol)", isPresented: $showSellAlert) {
+            TextField("Shares (e.g. 1.5)", text: $sellSharesInput)
+                .keyboardType(.decimalPad)
+            Button("Sell") {
+                Task {
+                    let shares = Double(sellSharesInput) ?? -1
+                    if shares > 0 {
+                        let stock = wallet.ownedStocks.first(where: { $0.name == companySymbol })
+                        if let stock {
+                            let success = await wallet.sellStock(id: stock.id, shares: shares)
+                            sellResultMessage = success
+                                ? "Sold \(sellSharesInput) shares of \(companySymbol)."
+                                : "Not enough shares."
+                        } else {
+                            sellResultMessage = "You don't own any \(companySymbol)."
+                        }
+                    } else {
+                        sellResultMessage = "Enter a valid number of shares."
+                    }
+                    showSellResultAlert = true
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            let stock = wallet.ownedStocks.first(where: { $0.name == companySymbol })
+            let totalShares = stock?.lots.reduce(0.0) { $0 + $1.amount } ?? 0
+            Text(String(format: "You own %.4f shares", totalShares))
+        }
+        .alert("Order Status", isPresented: $showSellResultAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(sellResultMessage)
+        }
     }
     
     private func loadData() async {

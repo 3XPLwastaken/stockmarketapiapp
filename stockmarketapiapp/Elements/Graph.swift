@@ -44,6 +44,7 @@ struct CandleView: View {
     var highest: Double
     var lowest: Double
     
+    
     var body: some View {
         // we need the size of the parent
         GeometryReader { geometry in
@@ -102,6 +103,8 @@ struct Graph: View {
     var name: String = "AAPL" // default
     @State var failed: Bool = false
     @State var candle: Candle = Candle()
+    @State private var socket: FinnhubSocket? = nil  // ✅ keeps it alive
+
 
     var body: some View {
         let highest = candle.maxFun()
@@ -143,6 +146,12 @@ struct Graph: View {
                 failed = (jsonData.value as? String)?.contains("Could not index") ?? false
                 
                 //print("candle count: \(candle.high.count)")
+                
+                
+                // connect to finnhub for realtime udpates
+                socket = FinnhubAPI.listenForMarketChanges(marketName: name, onMessage: {json in
+                    print("GOT MARKET DATA ")
+                })
             }
         }
     }

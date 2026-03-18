@@ -6,23 +6,22 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct CompanyShareView: View {
     
     var screenSize = UIScreen.main.bounds
     
     @State var isLoading: Bool = true
-    @State var stockPrices: [UUID: Double] = [:]       // current price per stock
+    @State var stockPrices: [UUID: Double] = [:]
     @State var totalValue: Double = 0.0
     @State var totalInvested: Double = 0.0
+    
+    @StateObject private var wallet = Wallet.shared
     
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                
-                // MARK: HEADER
-                // MARK: HEADER
-                // MARK: HEADER
                 
                 VStack(alignment: .leading, spacing: 4) {
                     Text("My Portfolio")
@@ -45,12 +44,8 @@ struct CompanyShareView: View {
                     .padding(.top, 40)
                 } else {
                     
-                    // MARK: TOTAL VALUE + GAIN/LOSS
-                    // MARK: TOTAL VALUE + GAIN/LOSS
-                    // MARK: TOTAL VALUE + GAIN/LOSS
-                    
                     HStack(alignment: .lastTextBaseline, spacing: 12) {
-                        Text(String(format: "$%.2f", totalValue))
+                        Text(String(format: "$%.2f", totalInvested))
                             .font(.system(size: 36, weight: .bold, design: .rounded))
                         
                         let gain = totalValue - totalInvested
@@ -71,25 +66,18 @@ struct CompanyShareView: View {
                     }
                     .padding(.horizontal)
                     
-                    // MARK: TAGS — cash balance + stock count
-                    // MARK: TAGS — cash balance + stock count
-                    // MARK: TAGS — cash balance + stock count
-                    
+                    // yeah
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack {
-                            Tag(title: "Cash", text: String(format: "$%.2f", Wallet.money))
-                            Tag(title: "Positions", text: "\(Wallet.ownedStocks.count)")
-                            Tag(title: "Currency", text: Wallet.moneyType)
+                            Tag(title: "Cash",      text: String(format: "$%.2f", wallet.money ?? 0))
+                            Tag(title: "Positions", text: "\(wallet.ownedStocks.count ?? 0)")
+                            Tag(title: "Currency",  text: wallet.moneyType ?? "USD")
                         }
                         .padding(.horizontal)
                     }
                     
-                    // MARK: STOCK CARDS
-                    // MARK: STOCK CARDS
-                    // MARK: STOCK CARDS
-                    
                     LazyVStack(spacing: 12) {
-                        ForEach(Wallet.ownedStocks) { stock in
+                        ForEach(wallet.ownedStocks ?? []) { stock in
                             StockShareCard(
                                 stock: stock,
                                 currentPrice: stockPrices[stock.id] ?? 0.0
@@ -109,12 +97,11 @@ struct CompanyShareView: View {
     private func loadData() async {
         isLoading = true
         
-        // fetch current price for every owned stock concurrently
         await withTaskGroup(of: (UUID, Double).self) { group in
-            for stock in Wallet.ownedStocks {
+            for stock in wallet.ownedStocks {
                 group.addTask {
                     let price = await stock.getCurrentPrice()
-                    return (stock.id, price)
+                    return await (stock.id, price)
                 }
             }
             for await (id, price) in group {
@@ -122,25 +109,19 @@ struct CompanyShareView: View {
             }
         }
         
-        // total shares value
-        totalValue = Wallet.ownedStocks.reduce(0.0) { result, stock in
-            let shares = stock.ownedShares.reduce(0.0) { $0 + $1.0 }
+        totalValue = wallet.ownedStocks.reduce(0.0) { result, stock in
+            let shares = stock.lots.reduce(0.0) { $0 + $1.amount }
             return result + shares * (stockPrices[stock.id] ?? 0.0)
         }
         
-        // total amount originally invested (price bought * shares)
-        totalInvested = Wallet.ownedStocks.reduce(0.0) { result, stock in
-            return result + stock.ownedShares.reduce(0.0) { $0 + $1.0 * $1.1 }
+        totalInvested = wallet.ownedStocks.reduce(0.0) { result, stock in
+            result + stock.lots.reduce(0.0) { $0 + $1.amount * $1.purchasedAt }
         }
         
         isLoading = false
     }
 }
 
-
-// MARK: - Individual Stock Card
-// MARK: - Individual Stock Card
-// MARK: - Individual Stock Card
 
 struct StockShareCard: View {
     var stock: Stock
@@ -149,22 +130,21 @@ struct StockShareCard: View {
     var screenSize = UIScreen.main.bounds
     
     var totalShares: Double {
-        stock.ownedShares.reduce(0.0) { $0 + $1.0 }
+        stock.lots.reduce(0.0) { $0 + $1.amount }
     }
     
     var totalCurrentValue: Double {
         totalShares * currentPrice
     }
     
-    // average price paid per share
     var avgBuyPrice: Double {
-        guard !stock.ownedShares.isEmpty else { return 0 }
-        let totalPaid = stock.ownedShares.reduce(0.0) { $0 + $1.0 * $1.1 }
+        guard !stock.lots.isEmpty else { return 0 }
+        let totalPaid = stock.lots.reduce(0.0) { $0 + $1.amount * $1.purchasedAt }
         return totalPaid / totalShares
     }
     
     var gain: Double {
-        totalCurrentValue - stock.ownedShares.reduce(0.0) { $0 + $1.0 * $1.1 }
+        totalCurrentValue - stock.lots.reduce(0.0) { $0 + $1.amount * $1.purchasedAt }
     }
     
     var isPositive: Bool { gain >= 0 }
@@ -172,7 +152,6 @@ struct StockShareCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             
-            // MARK: TOP ROW — name + current value
             HStack(alignment: .lastTextBaseline) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(stock.name)
@@ -198,7 +177,6 @@ struct StockShareCard: View {
                 }
             }
             
-            // MARK: MINI GRAPH
             RoundedRectangle(cornerRadius: 12)
                 .frame(width: screenSize.width - 64, height: 70)
                 .overlay {
@@ -207,12 +185,11 @@ struct StockShareCard: View {
                 }
                 .foregroundStyle(.gray.opacity(0.2))
             
-            // MARK: BOTTOM TAGS — price info
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
-                    Tag(title: "Price", text: String(format: "$%.2f", currentPrice))
+                    Tag(title: "Price",   text: String(format: "$%.2f", currentPrice))
                     Tag(title: "Avg Buy", text: String(format: "$%.2f", avgBuyPrice))
-                    Tag(title: "Lots", text: "\(stock.ownedShares.count)")
+                    Tag(title: "Lots",    text: "\(stock.lots.count)")
                 }
             }
         }

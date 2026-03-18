@@ -6,18 +6,24 @@
 //
 
 import Foundation
+import SwiftData
 
-struct Stock : Identifiable {
-    public var id : UUID = UUID()
-    
-    public var name : String = ""
-    public var ownedShares : [(Double, Double)] = [] // (price bought for, amount)
-    
-    public func getCurrentPrice() async -> Double {
+//@Model
+class Stock: Identifiable, Codable {
+    var name: String = ""
+    var lots: [ShareLot] = []
+    var id: UUID = UUID()
+
+    init(name: String, lots: [ShareLot] = []) {
+        self.name = name
+        self.lots = lots
+    }
+
+    func getCurrentPrice() async -> Double {
         return await FinnhubAPI.getCurrentStockPrice(name: name)
     }
-    
-    public static func getPrice(name: String) async -> Double {
+
+    static func getPrice(name: String) async -> Double {
         return await FinnhubAPI.getCurrentStockPrice(name: name)
     }
 }

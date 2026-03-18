@@ -6,77 +6,94 @@
 //
 
 import SwiftUI
+import Combine
 
+class Wallet: ObservableObject {
+    static let shared = Wallet()
 
-struct Wallet {
-    public static var money = 2000.0
-    public static var moneyType = "USD" // probably will never be used ngl
+    // this is really cool
+    // didSet runs whenever the value changes, so it autosaves when the value is changes
+    @Published var money: Double { didSet { save() } }
+    @Published var ownedStocks: [Stock] { didSet { save() } }
     
-    public static var ownedStocks : [Stock] = []
-    
-    public static func createInfo() async {
-        await Wallet.buyStock(stockName: "AAPL", amount: 0.87)
-        await Wallet.buyStock(stockName: "ABVE", amount: 0.20)
-        await Wallet.buyStock(stockName: "RBLX", amount: 8.20)
-        
-        print("MONEY: \(money)")
+    var moneyType: String = "USD" // this is never used
+
+    private init() {
+        let savedMoney = UserDefaults.standard.double(forKey: "wallet_money")
+        self.money = savedMoney == 0 ? 2000.0 : savedMoney
+
+        if let data = UserDefaults.standard.data(forKey: "wallet_stocks"),
+           let decoded = try? JSONDecoder().decode([Stock].self, from: data) {
+            self.ownedStocks = decoded
+        } else {
+            self.ownedStocks = []
+        }
     }
-    
-    public static func buyStock(stockName: String, amount: Double) async -> Bool {
+
+    private func save() {
+        UserDefaults.standard.set(money, forKey: "wallet_money")
+        if let encoded = try? JSONEncoder().encode(ownedStocks) {
+            UserDefaults.standard.set(encoded, forKey: "wallet_stocks")
+        }
+    }
+
+    func buyStock(stockName: String, amount: Double) async -> Bool {
         let price = await Stock.getPrice(name: stockName)
         let cost = price * amount
-        
-        guard money >= cost else {
-            print("Not enough money to buy \(stockName)")
-            return false
-        }
-        
+
+        // ur broke
+        if money < cost { return false }
         money -= cost
-        
-        // Merge into existing position if we already own this stock
+
+        // merge into existing position or create new one
         if let i = ownedStocks.firstIndex(where: { $0.name == stockName }) {
-            ownedStocks[i].ownedShares.append((amount, Date.now.timeIntervalSince1970))
+            ownedStocks[i].lots.append(ShareLot(amount: amount, purchasedAt: price))
         } else {
-            let stock = Stock(name: stockName, ownedShares: [(amount, Date.now.timeIntervalSince1970)])
-            ownedStocks.append(stock)
+            ownedStocks.append(Stock(name: stockName, lots: [ShareLot(amount: amount, purchasedAt: price)]))
         }
-        
+
         return true
     }
 
-    public static func sellStock(id: UUID, shares: Double) async -> Bool {
-        guard let i = ownedStocks.firstIndex(where: { $0.id == id }) else {
-            return false
-        }
-        
-        let totalOwned = ownedStocks[i].ownedShares.reduce(0) { $0 + $1.0 }
-        
-        guard shares <= totalOwned else {
-            print("Can't sell more shares than owned")
-            return false
-        }
-        
-        let price = await ownedStocks[i].getCurrentPrice()
-        money += price * shares
-        
-        if shares == totalOwned {
-            // Selling entire position
-            ownedStocks.remove(at: i)
-        } else {
-            // Partial sell — reduce shares from oldest purchases first (FIFO)
+    func sellStock(id: UUID, shares: Double) async -> Bool {
+        if let i = ownedStocks.firstIndex(where: { $0.id == id }) {
+            var totalOwned = 0.0
+            for lot in ownedStocks[i].lots {
+                totalOwned += lot.amount
+            }
+            
+            if shares > totalOwned {
+                return false
+            }
+
+            money += await ownedStocks[i].getCurrentPrice() * shares
+
+            // selling everything? just remove the whole position
+            if shares == totalOwned {
+                ownedStocks.remove(at: i)
+                return true
+            }
+
+            // partial sell, eat through lots oldest first its a stack basically
             var toRemove = shares
-            while toRemove > 0 && !ownedStocks[i].ownedShares.isEmpty {
-                let lot = ownedStocks[i].ownedShares[0].0
-                if lot <= toRemove {
-                    ownedStocks[i].ownedShares.removeFirst()
-                    toRemove -= lot
+            for lot in ownedStocks[i].lots.sorted(by: {
+                $0.purchasedAt < $1.purchasedAt
+            }) {
+                if toRemove <= 0 { break }
+                if lot.amount <= toRemove {
+                    toRemove -= lot.amount
+                    ownedStocks[i].lots.removeAll { $0.id == lot.id }
                 } else {
-                    ownedStocks[i].ownedShares[0].0 -= toRemove
+                    if let j = ownedStocks[i].lots.firstIndex(where: { $0.id == lot.id }) {
+                        ownedStocks[i].lots[j].amount -= toRemove
+                    }
                     toRemove = 0
                 }
             }
+
+            return true
         }
-        
-        return true
+
+        return false
     }
 }
