@@ -11,13 +11,16 @@ import Foundation
 import SwiftData
 
 //@Model
-class ShareLot: Identifiable, Codable {
+struct ShareLot: Identifiable, Codable {
+    var id: UUID = UUID()
     var amount: Double
     var purchasedAt: Double
+    var purchasedDate: Date = Date()
 
     init(amount: Double, purchasedAt: Double) {
         self.amount = amount
         self.purchasedAt = purchasedAt
+        self.purchasedDate = Date()
     }
 }
 

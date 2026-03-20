@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 //@Model
-class Stock: Identifiable, Codable {
+struct Stock: Identifiable, Codable {
     var name: String = ""
     var lots: [ShareLot] = []
     var id: UUID = UUID()

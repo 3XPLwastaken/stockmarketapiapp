@@ -77,7 +77,7 @@ class Wallet: ObservableObject {
             // partial sell, eat through lots oldest first its a stack basically
             var toRemove = shares
             for lot in ownedStocks[i].lots.sorted(by: {
-                $0.purchasedAt < $1.purchasedAt
+                $0.purchasedDate < $1.purchasedDate
             }) {
                 if toRemove <= 0 { break }
                 if lot.amount <= toRemove {
