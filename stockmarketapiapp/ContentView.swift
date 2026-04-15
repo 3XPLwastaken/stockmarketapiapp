@@ -114,16 +114,18 @@ struct ContentView: View {
                                             .frame(width: 35, height: 30)
                                             .padding(.leading, 3)
                                     }
-
+                                    
                                     Spacer()
-
-                                    Image(systemName: "gear")
-                                        .resizable()
-                                        .foregroundStyle(.black.mix(with: .white, by: 0.5))
-                                        .fontWeight(.semibold)
-                                        .frame(width: 40, height: 40)
-                                        .padding(.trailing, 40)
-                                        .padding(.leading, 3)
+                                    
+                                    NavigationLink { CountryViewApp() } label: {
+                                        Image(systemName: "gear")
+                                            .resizable()
+                                            .foregroundStyle(.black.mix(with: .white, by: 0.5))
+                                            .fontWeight(.semibold)
+                                            .frame(width: 40, height: 40)
+                                            .padding(.trailing, 40)
+                                            .padding(.leading, 3)
+                                    }
                                 }
                             }
                     )
