@@ -18,8 +18,8 @@ struct ShareLot: Identifiable, Codable {
     var purchasedDate: Date = Date()
 
     init(amount: Double, purchasedAt: Double) {
-        self.amount = amount
-        self.purchasedAt = purchasedAt
+        self.amount = (amount)
+        self.purchasedAt = (purchasedAt)
         self.purchasedDate = Date()
     }
 }

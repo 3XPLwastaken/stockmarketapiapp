@@ -28,6 +28,7 @@ struct ContentView: View {
                             VStack {
                                 HStack {
                                     Text(String(format: "$%.2f dollars", wallet.money ?? 0))
+                                    
                                         .foregroundStyle(.green.mix(with: .black, by: 0.1))
                                         .font(.system(size: 20))
                                         .bold()
